@@ -55,6 +55,15 @@ void FluTheme::refreshColors() {
                           : QColor(0, 0, 0, qRound(255 * 0.06)));
     itemCheckColor(isDark ? QColor(255, 255, 255, qRound(255 * 0.12))
                           : QColor(0, 0, 0, qRound(255 * 0.09)));
+
+    successColor(isDark ? QColor(108, 203, 95, 255)
+                          : QColor(15, 123, 15, 255));
+    warningColor(isDark ? QColor(252, 225, 0, 255)
+                          : QColor(157, 93, 0, 255));
+    infoColor(isDark ? _frameColor
+                          : QColor(0, 102, 180, 255));
+    errorColor(isDark ? QColor(255, 153, 164, 255)
+                          : QColor(196, 43, 28, 255));
 }
 
 bool FluTheme::eventFilter(QObject *, QEvent *event) {

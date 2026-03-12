@@ -166,23 +166,13 @@ FluObject {
                     }
                     iconSize:20
                     iconColor: {
-                        if(FluTheme.dark){
-                            switch(_super.type){
-                            case mcontrol.const_success: return Qt.rgba(108/255,203/255,95/255,1)
-                            case mcontrol.const_warning: return Qt.rgba(252/255,225/255,0/255,1)
-                            case mcontrol.const_info:    return FluTheme.primaryColor
-                            case mcontrol.const_error:   return Qt.rgba(255/255,153/255,164/255,1)
-                            }
-                            return Qt.rgba(1,1,1,1)
-                        }else{
-                            switch(_super.type){
-                            case mcontrol.const_success: return Qt.rgba(15/255,123/255,15/255,1)
-                            case mcontrol.const_warning: return Qt.rgba(157/255,93/255,0/255,1)
-                            case mcontrol.const_info:    return Qt.rgba(0/255,102/255,180/255,1)
-                            case mcontrol.const_error:   return Qt.rgba(196/255,43/255,28/255,1)
-                            }
-                            return Qt.rgba(1,1,1,1)
+                        switch(_super.type){
+                        case mcontrol.const_success: return FluTheme.successColor
+                        case mcontrol.const_warning: return FluTheme.warningColor
+                        case mcontrol.const_info:    return FluTheme.primaryColor
+                        case mcontrol.const_error:   return FluTheme.errorColor
                         }
+                        return Qt.rgba(1,1,1,1)
                     }
                 }
 

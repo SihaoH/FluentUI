@@ -3,7 +3,7 @@
 FluTextStyle::FluTextStyle(QObject *parent) : QObject{parent} {
     _family = QFont().defaultFamily();
 #ifdef Q_OS_WIN
-    _family = "微软雅黑";
+    _family = "Microsoft YaHei";
 #endif
 
     QFont caption;
