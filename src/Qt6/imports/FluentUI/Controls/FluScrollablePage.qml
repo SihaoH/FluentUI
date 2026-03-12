@@ -14,10 +14,8 @@ FluPage {
         id: flickable
         clip: true
         anchors.fill: parent
-        ScrollIndicator.vertical: FluScrollIndicator {
-            id: bar
-        }
-        boundsBehavior: Flickable.StopAtBounds
+        ScrollIndicator.vertical: FluScrollIndicator {}
+        boundsBehavior: Flickable.DragAndOvershootBounds
         contentHeight: container.height
         ColumnLayout {
             id: container

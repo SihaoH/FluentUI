@@ -51,11 +51,14 @@ TextField{
     background: FluTextBoxBackground{
         inputItem: control
     }
+    onVisibleChanged: if (!visible) focus = false
+    onEnabledChanged: if (!enabled) focus = false
     Keys.onEnterPressed: (event)=> d.handleCommit(event)
     Keys.onReturnPressed:(event)=> d.handleCommit(event)
     QtObject{
         id:d
         function handleCommit(event){
+            control.focus = false
             control.commit(control.text)
         }
     }

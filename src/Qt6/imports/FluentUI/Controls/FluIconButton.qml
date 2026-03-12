@@ -9,6 +9,7 @@ Button {
     property int iconSize: 20
     property int iconSource
     property bool disabled: false
+    property bool showFocus: false
     property int radius:4
     property string contentDescription: ""
     property color hoverColor: FluTheme.itemHoverColor
@@ -68,7 +69,7 @@ Button {
         radius: control.radius
         color:control.color
         FluFocusRectangle{
-            visible: control.activeFocus
+            visible: control.showFocus && control.activeFocus
         }
     }
     Component{

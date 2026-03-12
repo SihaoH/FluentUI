@@ -328,9 +328,9 @@ Rectangle {
     }
     TableView{
         id:table_view
-        ScrollBar.horizontal: FluScrollBar{}
-        ScrollBar.vertical: FluScrollBar{}
-        boundsBehavior: Flickable.StopAtBounds
+        ScrollIndicator.horizontal: FluScrollIndicator{}
+        ScrollIndicator.vertical: FluScrollIndicator{}
+        boundsBehavior: Flickable.DragAndOvershootBounds
         model: tree_model
         anchors{
             top: header_horizontal.bottom
