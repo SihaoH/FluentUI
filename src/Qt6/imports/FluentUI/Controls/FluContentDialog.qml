@@ -24,7 +24,7 @@ FluPopup {
     signal neutralClicked
     signal negativeClicked
     signal positiveClicked
-    implicitWidth: 400
+    implicitWidth: Math.min(400, parent.width * 0.8)
     implicitHeight: layout_content.height
     focus: true
     Component{
@@ -36,8 +36,8 @@ FluPopup {
             clip: true
             boundsBehavior:Flickable.StopAtBounds
             width: parent.width
-            height: message === "" ? 0 : Math.min(text_message.height,300)
             ScrollBar.vertical: FluScrollBar {}
+            readonly property int textHeight: message === "" ? 0 : Math.min(text_message.height,300)
             FluText{
                 id:text_message
                 font: FluTextStyle.Body
@@ -45,8 +45,8 @@ FluPopup {
                 text:message
                 width: parent.width
                 topPadding: 4
-                leftPadding: 20
-                rightPadding: 20
+                leftPadding: Qt.platform.os === "windows" ? 20 : 10
+                rightPadding: Qt.platform.os === "windows" ? 20 : 10
                 bottomPadding: 4
             }
         }
@@ -64,15 +64,16 @@ FluPopup {
                 id:text_title
                 font: FluTextStyle.Title
                 text:title
-                topPadding: 20
-                leftPadding: 20
-                rightPadding: 20
+                topPadding: Qt.platform.os === "windows" ? 20 : 10
+                leftPadding: Qt.platform.os === "windows" ? 20 : 10
+                rightPadding: Qt.platform.os === "windows" ? 20 : 10
                 wrapMode: Text.WordWrap
+                visible: title !== ""
             }
             FluLoader{
                 sourceComponent: com_message
                 Layout.fillWidth: true
-                Layout.preferredHeight: status===Loader.Ready ? item.height : 0
+                Layout.preferredHeight: status===Loader.Ready ? item.textHeight : 0
             }
             FluLoader{
                 sourceComponent:control.visible ? control.contentDelegate : undefined
