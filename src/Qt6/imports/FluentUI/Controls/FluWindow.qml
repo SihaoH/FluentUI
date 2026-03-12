@@ -258,6 +258,7 @@ Window {
                     FluText{
                         text:loadingText
                         Layout.alignment: Qt.AlignHCenter
+                        color: FluColors.White
                     }
                 }
             }

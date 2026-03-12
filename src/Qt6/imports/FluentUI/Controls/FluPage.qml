@@ -11,7 +11,6 @@ Page {
     id: control
     StackView.onRemoved: destroy()
     padding: 5
-    visible: false
     opacity: visible
     transform: Translate {
         y: control.visible ? 0 : 80
@@ -47,8 +46,5 @@ Page {
                 }
             }
         }
-    }
-    Component.onCompleted: {
-        control.visible = true
     }
 }

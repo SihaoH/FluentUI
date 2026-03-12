@@ -11,6 +11,7 @@ Rectangle {
     property bool showLine: true
     property int cellHeight: 30
     property int depthPadding: 15
+    property bool editable: false
     property bool checkable: false
     property color lineColor: FluTheme.dividerColor
     property color borderColor: FluTheme.dark ? Qt.rgba(37/255,37/255,37/255,1) : Qt.rgba(228/255,228/255,228/255,1)
@@ -184,8 +185,6 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: {
                     d.current = rowModel
-                }
-                onDoubleClicked: {
                     if(rowModel.hasChildren()){
                         item_container.toggle()
                     }
@@ -405,7 +404,7 @@ Rectangle {
                 d.editPosition = obj
             }
             onDoubleClicked:{
-                if(typeof(display) == "object"){
+                if(!editable || typeof(display) == "object"){
                     return
                 }
                 d.editDelegate = d.getEditDelegate(column)

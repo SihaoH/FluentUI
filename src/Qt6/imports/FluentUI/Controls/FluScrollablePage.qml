@@ -7,20 +7,21 @@ import FluentUI
 FluPage {
     id: control
     property bool autoResetScroll: false
+    property alias boundsBehavior: flickable.boundsBehavior
     default property alias content: container.data
 
     Flickable{
         id: flickable
         clip: true
         anchors.fill: parent
-        ScrollBar.vertical: FluScrollBar {
+        ScrollIndicator.vertical: FluScrollIndicator {
             id: bar
         }
         boundsBehavior: Flickable.StopAtBounds
         contentHeight: container.height
         ColumnLayout {
             id: container
-            width: parent.width - bar.width
+            width: parent.width
             spacing: control.spacing
         }
     }
