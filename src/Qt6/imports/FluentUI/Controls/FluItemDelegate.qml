@@ -17,6 +17,7 @@ T.ItemDelegate {
     contentItem:FluText {
         text: control.text
         font: control.font
+        verticalAlignment: Text.AlignVCenter
         color:{
             if(control.down){
                 return FluTheme.dark ? FluColors.Grey80 : FluColors.Grey120

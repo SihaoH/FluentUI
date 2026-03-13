@@ -20,8 +20,8 @@ Popup {
             height: 30
             anchors{
                 verticalCenter: parent.verticalCenter
-                left: parent.left
-                leftMargin: 5
+                right: parent.right
+                rightMargin: 5
             }
             onClicked: {
                 control.visible = false
@@ -33,9 +33,9 @@ Popup {
             font: FluTextStyle.Subtitle
             anchors{
                 verticalCenter: parent.verticalCenter
-                left: btn_close.right
+                left: parent.left
                 leftMargin: 5
-                right: parent.right
+                right: btn_close.left
                 rightMargin: 5
             }
         }

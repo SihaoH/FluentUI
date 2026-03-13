@@ -95,6 +95,7 @@ FluButton {
     Menu{
         id:popup
         modal: true
+        margins: 0
         Overlay.modal: Item {}
         enter: Transition {
             reversible: true
@@ -113,18 +114,20 @@ FluButton {
                 duration: FluTheme.animationEnabled ? 83 : 0
             }
         }
-        background:Rectangle{
-            radius: 5
-            color: FluTheme.dark ? Qt.rgba(43/255,43/255,43/255,1) : Qt.rgba(1,1,1,1)
-            border.color: FluTheme.dark ? Qt.rgba(26/255,26/255,26/255,1) : Qt.rgba(191/255,191/255,191/255,1)
-            FluShadow{
-                radius: 5
-            }
-        }
+        background: Item {}
         contentItem: Item{
             id:container
             implicitHeight: 340
             implicitWidth: 300
+            Rectangle{
+                anchors.fill: parent
+                radius: 5
+                color: FluTheme.dark ? Qt.rgba(43/255,43/255,43/255,1) : Qt.rgba(1,1,1,1)
+                border.color: FluTheme.dark ? Qt.rgba(26/255,26/255,26/255,1) : Qt.rgba(191/255,191/255,191/255,1)
+                FluShadow{
+                    radius: 5
+                }
+            }
             MouseArea{
                 anchors.fill: parent
             }
@@ -154,9 +157,9 @@ FluButton {
                             anchors.rightMargin: 5
                             color: {
                                 if(getListView().currentIndex === position){
-                                    return  item_mouse.containsMouse ? Qt.lighter(FluTheme.primaryColor,1.1): FluTheme.primaryColor
+                                    return  item_mouse.containsPress ? Qt.lighter(FluTheme.primaryColor,1.1): FluTheme.primaryColor
                                 }
-                                if(item_mouse.containsMouse){
+                                if(item_mouse.containsPress){
                                     return FluTheme.dark ? Qt.rgba(63/255,60/255,61/255,1) : Qt.rgba(237/255,237/255,242/255,1)
                                 }
                                 return Qt.rgba(0,0,0,0)
@@ -165,7 +168,7 @@ FluButton {
                             MouseArea{
                                 id:item_mouse
                                 anchors.fill: parent
-                                hoverEnabled: true
+                                hoverEnabled: Qt.platform.os === "windows"
                                 onClicked: {
                                     getListView().currentIndex = position
                                     if(type === 0){
@@ -215,8 +218,7 @@ FluButton {
                     Layout.preferredWidth: 100
                     Layout.preferredHeight: parent.height - 2
                     Layout.alignment: Qt.AlignVCenter
-                    boundsBehavior:Flickable.StopAtBounds
-                    ScrollBar.vertical: FluScrollBar {}
+                    ScrollIndicator.vertical: FluScrollIndicator {}
                     model: generateYearArray(1924,2048)
                     clip: true
                     preferredHighlightBegin: 0
@@ -232,7 +234,8 @@ FluButton {
                 }
                 Rectangle{
                     Layout.preferredWidth: 1
-                    Layout.preferredHeight: parent.height
+                    Layout.fillHeight: true
+                    Layout.topMargin: 1
                     color: control.dividerColor
                     visible: showYear
                 }
@@ -242,11 +245,10 @@ FluButton {
                     Layout.preferredHeight: parent.height - 2
                     Layout.alignment: Qt.AlignVCenter
                     clip: true
-                    ScrollBar.vertical: FluScrollBar {}
+                    ScrollIndicator.vertical: FluScrollIndicator {}
                     preferredHighlightBegin: 0
                     preferredHighlightEnd: 0
                     highlightMoveDuration: 0
-                    boundsBehavior:Flickable.StopAtBounds
                     delegate: FluLoader{
                         property var model: modelData
                         property int type:1
@@ -256,7 +258,8 @@ FluButton {
                 }
                 Rectangle{
                     Layout.preferredWidth: 1
-                    Layout.preferredHeight: parent.height
+                    Layout.fillHeight: true
+                    Layout.topMargin: 1
                     color: control.dividerColor
                 }
                 ListView{
@@ -268,8 +271,7 @@ FluButton {
                     preferredHighlightBegin: 0
                     preferredHighlightEnd: 0
                     highlightMoveDuration: 0
-                    ScrollBar.vertical: FluScrollBar {}
-                    boundsBehavior:Flickable.StopAtBounds
+                    ScrollIndicator.vertical: FluScrollIndicator {}
                     delegate: FluLoader{
                         property var model: modelData
                         property int type:2

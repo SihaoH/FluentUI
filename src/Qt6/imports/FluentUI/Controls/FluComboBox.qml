@@ -23,6 +23,7 @@ T.ComboBox {
     enabled: !disabled
     delegate: FluItemDelegate {
         width: ListView.view.width
+        height: control.height
         text: control.textRole ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole]) : modelData
         palette.text: control.palette.text
         font: control.font

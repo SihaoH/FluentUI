@@ -284,13 +284,13 @@ Rectangle {
                         MouseArea{
                             acceptedButtons: Qt.NoButton
                             id: hover_handler
-                            hoverEnabled: true
+                            hoverEnabled: Qt.platform.os === "windows"
                             anchors.fill: parent
                         }
                         FluTooltip{
                             text: item_text.text
                             delay: 500
-                            visible: item_text.contentWidth < item_text.implicitWidth &&  hover_handler.containsMouse
+                            visible: item_text.contentWidth < item_text.implicitWidth &&  hover_handler.containsPress
                         }
                     }
                 }
@@ -316,13 +316,13 @@ Rectangle {
             MouseArea{
                 acceptedButtons: Qt.NoButton
                 id: hover_handler
-                hoverEnabled: true
+                hoverEnabled: Qt.platform.os === "windows"
                 anchors.fill: parent
             }
             FluTooltip{
                 text: item_text.text
                 delay: 500
-                visible: item_text.contentWidth < item_text.implicitWidth && item_text.contentHeight < item_text.implicitHeight &&  hover_handler.containsMouse
+                visible: item_text.contentWidth < item_text.implicitWidth && item_text.contentHeight < item_text.implicitHeight &&  hover_handler.containsPress
             }
         }
     }
@@ -368,9 +368,10 @@ Rectangle {
             implicitHeight: 30
             implicitWidth: 30
             id: item_table
-            hoverEnabled: true
+            hoverEnabled: Qt.platform.os === "windows"
             onEntered: {
-                d.rowHoverIndex = row
+                if (hoverEnabled)
+                    d.rowHoverIndex = row
             }
             onWidthChanged: {
                 if(editVisible){
@@ -595,7 +596,7 @@ Rectangle {
                 id:column_item_control_mouse
                 anchors.fill: parent
                 anchors.rightMargin: 6
-                hoverEnabled: true
+                hoverEnabled: Qt.platform.os === "windows"
                 onCanceled: {
                     column_item_control.canceled = true
                 }
@@ -636,7 +637,7 @@ Rectangle {
                 width: 6
                 anchors.right: parent.right
                 acceptedButtons: Qt.LeftButton
-                hoverEnabled: true
+                hoverEnabled: Qt.platform.os === "windows"
                 visible: !(columnObject.width === columnObject.minimumWidth && columnObject.width === columnObject.maximumWidth && columnObject.width)
                 cursorShape: Qt.SplitHCursor
                 preventStealing: true
