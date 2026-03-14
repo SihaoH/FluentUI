@@ -18,7 +18,7 @@ FluButton {
     id:control
     implicitHeight: 30
     implicitWidth: 300
-    Component.onCompleted: {
+    onCurrentChanged: {
         if(current){
             var now = current;
             var hour
@@ -34,9 +34,8 @@ FluButton {
             }else{
                 hour = now.getHours();
             }
-            hour = text_hour.text === control.hourText ? hour.toString().padStart(2, '0') : text_hour.text
-            var minute = text_minute.text === control.minuteText ? now.getMinutes().toString().padStart(2, '0') : text_minute.text
-            ampm = text_ampm.text === "%1/%2".arg(control.amText).arg(control.pmText) ? ampm : text_ampm.text
+            hour = hour.toString().padStart(2, '0')
+            var minute = now.getMinutes().toString().padStart(2, '0')
             text_hour.text = hour
             text_minute.text = minute
             if(isH){

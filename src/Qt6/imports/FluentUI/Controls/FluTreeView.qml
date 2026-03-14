@@ -184,6 +184,7 @@ Rectangle {
                 property point clickPos: Qt.point(0,0)
                 anchors.fill: parent
                 onClicked: {
+                    tooltip.showTo(item_text)
                     d.current = rowModel
                     if(rowModel.hasChildren()){
                         item_container.toggle()
@@ -281,20 +282,27 @@ Rectangle {
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter
                         anchors.fill: parent
-                        MouseArea{
-                            acceptedButtons: Qt.NoButton
-                            id: hover_handler
-                            hoverEnabled: Qt.platform.os === "windows"
-                            anchors.fill: parent
-                        }
-                        FluTooltip{
-                            text: item_text.text
-                            delay: 500
-                            visible: item_text.contentWidth < item_text.implicitWidth &&  hover_handler.containsPress
-                        }
                     }
                 }
 
+            }
+        }
+    }
+    FluTooltip{
+        id: tooltip
+        Timer {
+            interval: 2000
+            running: tooltip.visible
+            repeat: false
+            onTriggered: {
+                tooltip.visible = false
+            }
+        }
+        function showTo(item_text) {
+            if (item_text.contentWidth < item_text.implicitWidth) {
+                tooltip.parent = item_text
+                tooltip.text = item_text.text
+                tooltip.visible = true
             }
         }
     }
@@ -637,8 +645,8 @@ Rectangle {
                 width: 6
                 anchors.right: parent.right
                 acceptedButtons: Qt.LeftButton
-                hoverEnabled: Qt.platform.os === "windows"
-                visible: !(columnObject.width === columnObject.minimumWidth && columnObject.width === columnObject.maximumWidth && columnObject.width)
+                hoverEnabled: true
+                visible: Qt.platform.os === "windows" && !(columnObject.width === columnObject.minimumWidth && columnObject.width === columnObject.maximumWidth && columnObject.width)
                 cursorShape: Qt.SplitHCursor
                 preventStealing: true
                 onPressed :

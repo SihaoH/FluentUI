@@ -16,12 +16,12 @@ FluButton {
     id:control
     implicitHeight: 30
     implicitWidth: 300
-    Component.onCompleted: {
+    onCurrentChanged: {
         if(current){
             const now = current;
-            var year = text_year.text === control.yearText? now.getFullYear() : Number(text_year.text);
-            var month = text_month.text === control.monthText? now.getMonth() + 1 : Number(text_month.text);
-            var day =  text_day.text === control.dayText ? now.getDate() : Number(text_day.text);
+            var year = now.getFullYear();
+            var month = now.getMonth() + 1;
+            var day =  now.getDate();
             text_year.text = year
             text_month.text = month
             text_day.text = day

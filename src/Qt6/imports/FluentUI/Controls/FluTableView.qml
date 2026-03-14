@@ -17,6 +17,7 @@ Rectangle {
     property color borderColor: FluTheme.dark ? Qt.rgba(37/255,37/255,37/255,1) : Qt.rgba(228/255,228/255,228/255,1)
     property bool horizonalHeaderVisible: true
     property bool verticalHeaderVisible: true
+    property bool editable: false
     property int startRowIndex: 1
     property color selectedBorderColor: FluTheme.primaryColor
     property color selectedColor: FluTools.withOpacity(FluTheme.primaryColor,0.3)
@@ -24,10 +25,16 @@ Rectangle {
     property var columnWidthProvider: function(column) {
         var columnModel = control.columnSource[column]
         var width = columnModel.width
+        var minimumWidth = columnModel.minimumWidth
+        var maximumWidth = columnModel.maximumWidth
+        if (width < 0) {
+            if(!minimumWidth) minimumWidth = d.defaultItemWidth
+            if(!maximumWidth) maximumWidth = 65535
+            width = Math.max(minimumWidth, Math.min(maximumWidth, d.columnWidths[column]))
+        }
         if(width){
             return width
         }
-        var minimumWidth = columnModel.minimumWidth
         if(minimumWidth){
             return minimumWidth
         }
@@ -59,9 +66,6 @@ Rectangle {
             var offsetX = 0
             for(var i=0;i<=columnSource.length-1;i++){
                 var item = columnSource[i]
-                if(!item.width){
-                    item.width = d.defaultItemWidth
-                }
                 item.x = offsetX
                 offsetX = offsetX + item.width
                 var column = Qt.createQmlObject('import Qt.labs.qmlmodels 1.0;TableModelColumn{}',sourceModel);
@@ -84,6 +88,7 @@ Rectangle {
         property int defaultItemHeight: 42
         property var editDelegate
         property var editPosition
+        property var columnWidths: []
         signal tableItemLayout(int column)
         function getEditDelegate(column){
             var obj =control.columnSource[column].editDelegate
@@ -142,7 +147,6 @@ Rectangle {
                 clip: true
                 anchors.fill: parent
                 ScrollBar.vertical: multiline_text_srcoll_bar
-                boundsBehavior: Flickable.StopAtBounds
                 TextArea.flickable: FluMultilineTextBox {
                     id:text_box
                     text: String(display)
@@ -212,16 +216,30 @@ Rectangle {
                 bottomMargin: 6
             }
             verticalAlignment: Text.AlignVCenter
-            MouseArea{
-                acceptedButtons: Qt.NoButton
-                id: hover_handler
-                hoverEnabled: true
-                anchors.fill: parent
+            Component.onCompleted: {
+                let selfWidth = implicitWidth + 22
+                if (!d.columnWidths[column] || selfWidth > d.columnWidths[column]) {
+                    d.columnWidths[column] = selfWidth
+                    Qt.callLater(table_view.forceLayout)
+                }
             }
-            FluTooltip{
-                text: item_text.text
-                delay: 500
-                visible: item_text.contentWidth < item_text.implicitWidth && item_text.contentHeight < item_text.implicitHeight &&  hover_handler.containsMouse
+        }
+    }
+    FluTooltip{
+        id: tooltip
+        Timer {
+            interval: 2000
+            running: tooltip.visible
+            repeat: false
+            onTriggered: {
+                tooltip.visible = false
+            }
+        }
+        function showTo(item_text) {
+            if (item_text && item_text.contentWidth < item_text.implicitWidth) {
+                tooltip.parent = item_text
+                tooltip.text = item_text.text
+                tooltip.visible = true
             }
         }
     }
@@ -265,7 +283,7 @@ Rectangle {
                     control.closeEditor()
                 }
             }
-            hoverEnabled: true
+            hoverEnabled: Qt.platform.os === "windows"
             onEntered: {
                 d.rowHoverIndex = row
             }
@@ -321,16 +339,11 @@ Rectangle {
                 }
                 MouseArea{
                     anchors.fill: parent
-                    acceptedButtons: Qt.LeftButton
                     onPressed:{
                         control.closeEditor()
                     }
-                    onCanceled: {
-                    }
-                    onReleased: {
-                    }
                     onDoubleClicked:{
-                        if(item_table_loader.isObject){
+                        if(!control.editable || item_table_loader.isObject){
                             return
                         }
                         loader_edit.display = item_table_loader.display
@@ -339,6 +352,7 @@ Rectangle {
                     }
                     onClicked:
                         (event)=>{
+                            tooltip.showTo(item_table_loader.item)
                             d.current = rowModel
                             control.closeEditor()
                             event.accepted = true
@@ -393,7 +407,7 @@ Rectangle {
                     }
                     signal editTextChaged(string text)
                     sourceComponent: {
-                        if(item_table_mouse.visible && d.editPosition && d.editPosition.column === model.column && d.editPosition.row === model.row){
+                        if(control.editable && item_table_mouse.visible && d.editPosition && d.editPosition.column === model.column && d.editPosition.row === model.row){
                             return d.editDelegate
                         }
                         return undefined
@@ -442,7 +456,7 @@ Rectangle {
 
     MouseArea{
         id:layout_mouse_table
-        hoverEnabled: true
+        hoverEnabled: Qt.platform.os === "windows"
         anchors{
             left: header_vertical.right
             top: header_horizontal.bottom
@@ -457,17 +471,15 @@ Rectangle {
         }
         TableView {
             id:table_view
-            boundsBehavior: Flickable.StopAtBounds
             anchors.fill: parent
-            ScrollBar.horizontal:scroll_bar_h
-            ScrollBar.vertical:scroll_bar_v
+            ScrollIndicator.horizontal: FluScrollIndicator{}
+            ScrollIndicator.vertical: FluScrollIndicator{}
             columnWidthProvider: control.columnWidthProvider
             rowHeightProvider: control.rowHeightProvider
             model: table_sort_model
             clip: true
             onRowsChanged: {
                 control.closeEditor()
-                table_view.flick(0,1)
             }
             delegate: com_table_delegate
             onWidthChanged: {
@@ -553,7 +565,7 @@ Rectangle {
                 id:column_item_control_mouse
                 anchors.fill: parent
                 anchors.rightMargin: 6
-                hoverEnabled: true
+                hoverEnabled: Qt.platform.os === "windows"
                 onCanceled: {
                     column_item_control.canceled = true
                 }
@@ -596,8 +608,8 @@ Rectangle {
                 width: 6
                 anchors.right: parent.right
                 acceptedButtons: Qt.LeftButton
-                hoverEnabled: true
-                visible: !columnModel.frozen && !(columnModel.width === columnModel.minimumWidth && columnModel.width === columnModel.maximumWidth && columnModel.width)
+                hoverEnabled: Qt.platform.os === "windows"
+                visible: Qt.platform.os === "windows" && !columnModel.frozen && !(columnModel.width === columnModel.minimumWidth && columnModel.width === columnModel.maximumWidth && columnModel.width)
                 cursorShape: Qt.SplitHCursor
                 preventStealing: true
                 onPressed :
@@ -685,7 +697,7 @@ Rectangle {
                 id:item_control_mouse
                 anchors.fill: parent
                 anchors.bottomMargin: 6
-                hoverEnabled: true
+                hoverEnabled: Qt.platform.os === "windows"
                 onCanceled: {
                     item_control.canceled = true
                 }
@@ -806,10 +818,9 @@ Rectangle {
         }
         visible: control.horizonalHeaderVisible
         height: visible ? Math.max(1, contentHeight) : 0
-        boundsBehavior: Flickable.StopAtBounds
         clip: true
         syncDirection: Qt.Horizontal
-        ScrollBar.horizontal:scroll_bar_h_2
+        boundsBehavior: Flickable.StopAtBounds
         columnWidthProvider: table_view.columnWidthProvider
         syncView: table_view.rows === 0 ? null : table_view
         onContentXChanged:{
@@ -826,12 +837,12 @@ Rectangle {
     }
     TableView {
         id: header_vertical
-        boundsBehavior: Flickable.StopAtBounds
         anchors{
             top: layout_mouse_table.top
             left: parent.left
         }
         visible: control.verticalHeaderVisible
+        boundsBehavior: Flickable.StopAtBounds
         implicitWidth: visible ? Math.max(1, contentWidth) : 0
         implicitHeight: syncView ? syncView.height : 0
         syncDirection: Qt.Vertical
@@ -906,7 +917,6 @@ Rectangle {
                     contentWidth: width
                     height: table_view.height
                     y: header_horizontal.height
-                    boundsBehavior: TableView.StopAtBounds
                     model: table_view.model
                     delegate: table_view.delegate
                     syncDirection: Qt.Vertical
@@ -916,7 +926,6 @@ Rectangle {
                     property string dataIndex: columnModel.dataIndex
                     id:item_table_frozen_header
                     model: header_column_model
-                    boundsBehavior: Flickable.StopAtBounds
                     interactive: false
                     clip: true
                     contentWidth: width
@@ -997,42 +1006,9 @@ Rectangle {
             }
         }
     }
-    FluScrollBar {
-        id: scroll_bar_h
-        anchors{
-            left: layout_mouse_table.left
-            right: parent.right
-            bottom: layout_mouse_table.bottom
-        }
-        visible: table_view.rows !== 0
-        z:999
-    }
-    FluScrollBar {
-        id: scroll_bar_h_2
-        anchors{
-            left: layout_mouse_table.left
-            right: parent.right
-            bottom: layout_mouse_table.bottom
-        }
-        visible: table_view.rows === 0
-        z:999
-    }
-    FluScrollBar {
-        id: scroll_bar_v
-        anchors{
-            top: layout_mouse_table.top
-            bottom: layout_mouse_table.bottom
-            right: parent.right
-        }
-        z:999
-    }
     function closeEditor(){
         d.editPosition = undefined
         d.editDelegate = undefined
-    }
-    function resetPosition(){
-        scroll_bar_h.position = 0
-        scroll_bar_v.position = 0
     }
     function customItem(comId,options={}){
         var o = {}
