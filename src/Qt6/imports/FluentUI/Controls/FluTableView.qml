@@ -601,6 +601,13 @@ Rectangle {
                     }
                     return com_column_text
                 }
+                onLoaded: {
+                    let selfWidth = item.implicitWidth + 22
+                    if (!d.columnWidths[column] || selfWidth > d.columnWidths[column]) {
+                        d.columnWidths[column] = selfWidth
+                        Qt.callLater(table_view.forceLayout)
+                    }
+                }
             }
             MouseArea{
                 property point clickPos: "0,0"
@@ -767,6 +774,7 @@ Rectangle {
             id: column_text
             text: String(display)
             anchors.fill: parent
+            elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
