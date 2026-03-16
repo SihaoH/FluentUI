@@ -13,15 +13,16 @@ Page {
     property int headerHorMargin: 20
     property int headerSpacing: 20
     property int headerHeight: 40
+    property var tabFont: FluTextStyle.Title
+    property int minimumTabWidth: 80
     id:control
     width: 400
     height: 300
-    font: FluTextStyle.Title
     implicitHeight: height
     implicitWidth: width
     FluObject{
         id:d
-        property int tabY: control.headerHeight/2+control.font.pixelSize/2 + 3
+        property int tabY: control.headerHeight/2+control.tabFont.pixelSize/2 + 3
     }
     background:Item{}
     header: Item {
@@ -52,7 +53,7 @@ Page {
             }
             delegate: Button{
                 id:item_button
-                width: item_title.width
+                width: Math.max(control.minimumTabWidth, item_title.width)
                 height: nav_list.height
                 focusPolicy:Qt.TabFocus
                 background:Item{
@@ -67,7 +68,7 @@ Page {
                         id:item_title
                         text: modelData.title
                         anchors.centerIn: parent
-                        font: control.font
+                        font: control.tabFont
                         color: {
                             if(nav_list.currentIndex === index) {
                                 return textHighlightColor;
