@@ -103,6 +103,7 @@ TextField{
             contentDescription:"Clean"
             onClicked:{
                 control.clear()
+                control.editingFinished()
             }
         }
         FluIcon{
