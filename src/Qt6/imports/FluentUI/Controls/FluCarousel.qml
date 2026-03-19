@@ -41,7 +41,9 @@ Item {
             if(!data || !Array.isArray(data)){
                 return
             }
+            list_view.model = null
             content_model.clear()
+            list_view.model = content_model
             list_view.resetPos()
             if(data.length === 0){
                 return
@@ -63,7 +65,6 @@ Item {
         snapMode: ListView.SnapOneItem
         clip: true
         boundsBehavior: ListView.StopAtBounds
-        model:content_model
         maximumFlickVelocity: 4 * (control.orientation === Qt.Vertical ? height : width)
         preferredHighlightBegin: 0
         preferredHighlightEnd: 0

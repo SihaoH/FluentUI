@@ -45,8 +45,8 @@ FluPopup {
                 text:message
                 width: parent.width
                 topPadding: 4
-                leftPadding: Qt.platform.os === "windows" ? 20 : 10
-                rightPadding: Qt.platform.os === "windows" ? 20 : 10
+                leftPadding: 10
+                rightPadding: 10
                 bottomPadding: 4
             }
         }
@@ -64,9 +64,9 @@ FluPopup {
                 id:text_title
                 font: FluTextStyle.Title
                 text:title
-                topPadding: Qt.platform.os === "windows" ? 20 : 10
-                leftPadding: Qt.platform.os === "windows" ? 20 : 10
-                rightPadding: Qt.platform.os === "windows" ? 20 : 10
+                topPadding: 10
+                leftPadding: 10
+                rightPadding: 10
                 wrapMode: Text.WordWrap
                 visible: title !== ""
             }
@@ -103,60 +103,48 @@ FluPopup {
                         fill: parent
                     }
                     spacing: 10
-                    Item{
+                    FluButton{
+                        id:neutral_btn
+                        visible: control.buttonFlags&FluContentDialogType.NeutralButton
+                        text: neutralText
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        FluButton{
-                            id:neutral_btn
-                            visible: control.buttonFlags&FluContentDialogType.NeutralButton
-                            text: neutralText
-                            width: parent.width
-                            anchors.centerIn: parent
-                            onClicked: {
-                                if(control.onNeutralClickListener){
-                                    control.onNeutralClickListener()
-                                }else{
-                                    neutralClicked()
-                                    control.close()
-                                }
+                        onClicked: {
+                            if(control.onNeutralClickListener){
+                                control.onNeutralClickListener()
+                            }else{
+                                neutralClicked()
+                                control.close()
                             }
                         }
                     }
-                    Item{
+                    FluButton{
+                        id:negative_btn
+                        visible: control.buttonFlags&FluContentDialogType.NegativeButton
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        FluButton{
-                            id:negative_btn
-                            visible: control.buttonFlags&FluContentDialogType.NegativeButton
-                            width: parent.width
-                            anchors.centerIn: parent
-                            text: negativeText
-                            onClicked: {
-                                if(control.onNegativeClickListener){
-                                    control.onNegativeClickListener()
-                                }else{
-                                    negativeClicked()
-                                    control.close()
-                                }
+                        text: negativeText
+                        onClicked: {
+                            if(control.onNegativeClickListener){
+                                control.onNegativeClickListener()
+                            }else{
+                                negativeClicked()
+                                control.close()
                             }
                         }
                     }
-                    Item{
+                    FluFilledButton{
+                        id:positive_btn
+                        visible: control.buttonFlags&FluContentDialogType.PositiveButton
+                        text: positiveText
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        FluFilledButton{
-                            id:positive_btn
-                            visible: control.buttonFlags&FluContentDialogType.PositiveButton
-                            text: positiveText
-                            width: parent.width
-                            anchors.centerIn: parent
-                            onClicked: {
-                                if(control.onPositiveClickListener){
-                                    control.onPositiveClickListener()
-                                }else{
-                                    positiveClicked()
-                                    control.close()
-                                }
+                        onClicked: {
+                            if(control.onPositiveClickListener){
+                                control.onPositiveClickListener()
+                            }else{
+                                positiveClicked()
+                                control.close()
                             }
                         }
                     }
