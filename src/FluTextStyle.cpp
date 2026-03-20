@@ -1,7 +1,8 @@
 #include "FluTextStyle.h"
+#include <QGuiApplication>
 
 FluTextStyle::FluTextStyle(QObject *parent) : QObject{parent} {
-    _family = QFont().defaultFamily();
+    _family = QGuiApplication::font().family();
 #ifdef Q_OS_WIN
     _family = "Microsoft YaHei";
 #endif
