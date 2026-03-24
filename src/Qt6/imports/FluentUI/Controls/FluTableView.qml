@@ -825,7 +825,7 @@ Rectangle {
             top: parent.top
         }
         visible: control.horizonalHeaderVisible
-        height: visible ? Math.max(1, contentHeight) : 0
+        height: control.horizonalHeaderVisible ? Math.max(1, contentHeight) : 0
         clip: true
         syncDirection: Qt.Horizontal
         boundsBehavior: Flickable.StopAtBounds
@@ -851,7 +851,7 @@ Rectangle {
         }
         visible: control.verticalHeaderVisible
         boundsBehavior: Flickable.StopAtBounds
-        implicitWidth: visible ? Math.max(1, contentWidth) : 0
+        implicitWidth: control.verticalHeaderVisible ? Math.max(1, contentWidth) : 0
         implicitHeight: syncView ? syncView.height : 0
         syncDirection: Qt.Vertical
         syncView: table_view
