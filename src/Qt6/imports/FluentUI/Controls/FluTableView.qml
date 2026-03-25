@@ -59,24 +59,6 @@ Rectangle {
         }
         return FluTheme.frameColor
     }
-    onColumnSourceChanged: {
-        if(columnSource.length!==0){
-            var columns= []
-            var headerRow = {}
-            var offsetX = 0
-            for(var i=0;i<=columnSource.length-1;i++){
-                var item = columnSource[i]
-                item.x = offsetX
-                offsetX = offsetX + item.width
-                var column = Qt.createQmlObject('import Qt.labs.qmlmodels 1.0;TableModelColumn{}',sourceModel);
-                column.display = item.dataIndex
-                columns.push(column)
-                headerRow[item.dataIndex] = item
-            }
-            header_column_model.columns = columns
-            header_column_model.rows = [headerRow]
-        }
-    }
     Component.onDestruction: {
         table_view.contentY = 0
     }
@@ -108,9 +90,12 @@ Rectangle {
         })
         sourceModel.rows = dataSource
     }
-    TableModel{
+    FluTableModel{
         id: header_column_model
-        TableModelColumn { display : "title"}
+        columnSource: control.columnSource
+        onColumnSourceChanged: {
+            header_column_model.rows = [{}]
+        }
     }
     TableModel{
         id: header_row_model
@@ -216,13 +201,6 @@ Rectangle {
                 bottomMargin: 6
             }
             verticalAlignment: Text.AlignVCenter
-            Component.onCompleted: {
-                let selfWidth = implicitWidth + 22
-                if (!d.columnWidths[column] || selfWidth > d.columnWidths[column]) {
-                    d.columnWidths[column] = selfWidth
-                    Qt.callLater(table_view.forceLayout)
-                }
-            }
         }
     }
     FluTooltip{
@@ -384,6 +362,13 @@ Rectangle {
                         }
                         return undefined
                     }
+                    onLoaded: {
+                        let selfWidth = item.implicitWidth + 22
+                        if (!d.columnWidths[column] || selfWidth > d.columnWidths[column]) {
+                            d.columnWidths[column] = selfWidth
+                            Qt.callLater(table_view.forceLayout)
+                        }
+                    }
                 }
                 FluLoader{
                     id: loader_edit
@@ -477,12 +462,16 @@ Rectangle {
             columnWidthProvider: control.columnWidthProvider
             rowHeightProvider: control.rowHeightProvider
             model: table_sort_model
+            reuseItems: false
             clip: true
             onRowsChanged: {
                 control.closeEditor()
             }
             delegate: com_table_delegate
             onWidthChanged: {
+                Qt.callLater(forceLayout)
+            }
+            onContentXChanged: {
                 Qt.callLater(forceLayout)
             }
         }
@@ -495,14 +484,9 @@ Rectangle {
             property var currentTableView : TableView.view
             readonly property real cellPadding: 8
             property bool canceled: false
-            property var _model: model
-            readonly property var columnModel : control.columnSource[_index]
-            readonly property int _index : {
-                const isDataIndex = (element) => {
-                    return element.dataIndex === display.dataIndex
-                }
-                return control.columnSource.findIndex(isDataIndex)
-            }
+            property var _model: model.columnModel
+            readonly property var columnModel : control.columnSource[column]
+            readonly property int _index : column
             readonly property bool isHeaderHorizontal: TableView.view == header_horizontal
             readonly property bool isHide: {
                 if(isHeaderHorizontal){
@@ -582,7 +566,7 @@ Rectangle {
             FluLoader{
                 id:item_column_loader
                 property var model: column_item_control._model
-                property var display: model.display.title
+                property var display: model.title
                 property var tableView: table_view
                 property var sourceModel: control.sourceModel
                 property bool isObject: typeof(display) == "object"
@@ -827,20 +811,10 @@ Rectangle {
         visible: control.horizonalHeaderVisible
         height: control.horizonalHeaderVisible ? Math.max(1, contentHeight) : 0
         clip: true
+        reuseItems: false
         syncDirection: Qt.Horizontal
         boundsBehavior: Flickable.StopAtBounds
-        columnWidthProvider: table_view.columnWidthProvider
-        syncView: table_view.rows === 0 ? null : table_view
-        onContentXChanged:{
-            timer_horizontal_force_layout.restart()
-        }
-        Timer{
-            id:timer_horizontal_force_layout
-            interval: 50
-            onTriggered: {
-                header_horizontal.forceLayout()
-            }
-        }
+        syncView: table_view
         delegate: com_column_header_delegate
     }
     TableView {
@@ -854,13 +828,11 @@ Rectangle {
         implicitWidth: control.verticalHeaderVisible ? Math.max(1, contentWidth) : 0
         implicitHeight: syncView ? syncView.height : 0
         syncDirection: Qt.Vertical
+        reuseItems: false
         syncView: table_view
         clip: true
         model: header_row_model
         delegate: com_row_header_delegate
-        onContentYChanged:{
-            timer_vertical_force_layout.restart()
-        }
         Connections{
             target: table_view
             function onRowsChanged(){
@@ -871,13 +843,6 @@ Rectangle {
             target: control
             function onStartRowIndexChanged(){
                 header_vertical.updateRowIndex()
-            }
-        }
-        Timer{
-            id:timer_vertical_force_layout
-            interval: 50
-            onTriggered: {
-                header_vertical.forceLayout()
             }
         }
         function updateRowIndex(){
@@ -973,6 +938,7 @@ Rectangle {
                 }
                 Connections{
                     target: d
+                    enabled: item_layout_frozen.visible
                     function onTableItemLayout(column){
                         if(item_layout_frozen._index === column){
                             Qt.callLater(updateLayout)
@@ -981,6 +947,7 @@ Rectangle {
                 }
                 Connections{
                     target: table_view
+                    enabled: item_layout_frozen.visible
                     function onContentXChanged(){
                         Qt.callLater(updateLayout)
                     }
@@ -1006,7 +973,9 @@ Rectangle {
                     )
                 }
                 Component.onCompleted: {
-                    updateLayout()
+                    if (visible) {
+                        updateLayout()
+                    }
                 }
                 height: control.height
                 visible: !item_layout_frozen.isHide
